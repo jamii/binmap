@@ -2,7 +2,7 @@ open Batteries_uni
 
 type t = Bitmap.t DynArray.t
 
-let create length = DynArray.init (length / Bitmap.width) (fun _ -> Bitmap.zeroes)
+let create () = DynArray.create ()
 
 let get widemap i =
   try

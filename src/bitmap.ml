@@ -1,19 +1,24 @@
-type t = Int64.t
+(* !!! replace 0l by zero !!! *)
 
-let width = 64
+type t = Int32.t
 
-open Int64
+type bigarray_elt = Batteries_uni.Bigarray.int32_elt
+let bigarray_kind = Batteries_uni.Bigarray.int32
 
-let zeroes = 0L
-let ones = lognot 0L
+let width = 32
+
+open Int32
+
+let zeroes = 0l
+let ones = lognot 0l
 
 let get bitmap n =
-  let bit = logand 1L (shift_right bitmap n) in
-  bit > 0L
+  let bit = logand 1l (shift_right bitmap n) in
+  bit > 0l
 
 let set bitmap n = function
-  | false -> logand bitmap (lognot (shift_left 1L n))
-  | true -> logor bitmap (shift_left 1L n)
+  | false -> logand bitmap (lognot (shift_left 1l n))
+  | true -> logor bitmap (shift_left 1l n)
 
 (* can be faster *)
 let copy bitmap1 i bitmap2 j =
@@ -21,9 +26,9 @@ let copy bitmap1 i bitmap2 j =
 
 (* 010101010101.... *)
 let paired_mask =
-  let bitmap = ref 0L in
+  let bitmap = ref 0l in
   for i = 0 to width/2 - 1 do
-    bitmap := logor 1L (shift_left !bitmap 2)
+    bitmap := logor 1l (shift_left !bitmap 2)
   done;
   !bitmap
 
@@ -31,12 +36,12 @@ let paired_mask =
 let is_paired bitmap =
   let pairs = logxor bitmap (shift_right_logical bitmap 1) in
   (* pairs must have this pattern *0*0*0*0... *)
-  logand paired_mask pairs = 0L
+  logand paired_mask pairs = 0l
 
 (* given two paired_up bitmaps, concat pairs and join bitmaps together *)
 (* ie join aabb ccdd = abcd *)
 let join bitmapL bitmapR =
-  let bitmap = ref 0L in
+  let bitmap = ref 0l in
   for i = 0 to width/2 - 1 do
     bitmap := copy bitmapR (2*i) !bitmap i
   done;
@@ -46,10 +51,10 @@ let join bitmapL bitmapR =
   !bitmap
 
 (* given a bitmap, split into two paired_up bitmaps *)
-(* unjoin (join bitmap1 bitmap2) = (bitmap1, bitmap2) *)
-let unjoin bitmap =
-  let bitmapL = ref 0L in
-  let bitmapR = ref 0L in
+(* split (join bitmap1 bitmap2) = (bitmap1, bitmap2) *)
+let split bitmap =
+  let bitmapL = ref 0l in
+  let bitmapR = ref 0l in
   for i = 0 to width/2 - 1 do
     bitmapR := copy bitmap i !bitmapR (2*i);
     bitmapR := copy bitmap i !bitmapR (2*i + 1)
@@ -60,9 +65,6 @@ let unjoin bitmap =
   done;
   (!bitmapL, !bitmapR)
 
-let split bitmap =
-  (to_int32 (shift_right bitmap 32), to_int32 bitmap)
-
 let to_string bitmap =
   let string = String.create width in
   for i = 0 to width-1 do
@@ -72,9 +74,12 @@ let to_string bitmap =
   string
 
 let of_string string =
-  let bitmap = ref 0L in
+  let bitmap = ref 0l in
   for i = 0 to width-1 do
     let char = String.get string (width-i-1) in
     bitmap := set !bitmap i (Pervasives.(=) char '1')
   done;
   !bitmap
+
+let to_int = to_int
+let of_int = of_int

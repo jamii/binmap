@@ -1,6 +1,6 @@
 type t
 
-val create : int -> t
+val create : unit -> t
 
 val get : t -> int -> bool
 val set : t -> int -> bool -> unit
