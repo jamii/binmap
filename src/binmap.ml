@@ -166,3 +166,11 @@ let rec set binmap i layer bit =
     set binmap (2*i)     (layer-1) bit;
     set binmap (2*i + 1) (layer-1) bit
   end
+
+let to_string binmap =
+  let string = String.create binmap.length in
+  for i = 0 to binmap.length-1 do
+    let char = if get binmap i then '1' else '0' in
+    String.set string i char
+  done;
+  string
