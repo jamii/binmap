@@ -141,7 +141,7 @@ let rec set_loop binmap offset set_layer set_bit layer node_addr =
   begin match node with
   | Bitmap bitmap when layer = set_layer->
       assert (layer >= 0);
-      let bitmap = Bitmap.set bitmap (offset / bin_size) set_bit in
+      let bitmap = Bitmap.set bitmap offset set_bit in
       set_node binmap node_addr is_left (Bitmap bitmap)
   | Bitmap bitmap when layer > set_layer->
       assert (layer >= 0);
