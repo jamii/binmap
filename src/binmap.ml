@@ -37,8 +37,9 @@ let create_array length =
   array
 
 let create length =
-  let layers = layers_needed length in
+  assert (length > 0);
   assert (length <= max_length);
+  let layers = layers_needed length in
   assert (layers <= max_layers);
   { length = length
   ; layers = layers
