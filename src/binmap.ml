@@ -66,16 +66,18 @@ let set_node binmap node_addr is_left node =
 let grow_array binmap =
   assert (binmap.free = 0);
   let old_len = Array.dim binmap.array in
+  assert (old_len mod 2 = 0);
   assert (old_len <= max_int);
   let new_len = min max_int (2 * old_len) in
+  assert (new_len mod 2 = 0);
   let array = create_array new_len in
   Array.blit binmap.array (Array.sub array 0 old_len);
   binmap.array <- array;
   binmap.free <- old_len;
-  for i = old_len to new_len-2 do
-    Array.seti array i (i+1)
+  for i = old_len to new_len-4 do
+    if i mod 2 = 0  then Array.seti array i (i+2)
   done;
-  Array.seti array (new_len - 1) 0
+  Array.seti array (new_len-2) 0
 
 let add_pair binmap node_left node_right =
   (if binmap.free = 0 then grow_array binmap);
@@ -87,8 +89,7 @@ let add_pair binmap node_left node_right =
   node_addr
 
 let del_pair binmap node_addr =
-  Array.seti binmap.array node_addr (node_addr+1);
-  Array.seti binmap.array (node_addr+1) binmap.free;
+  Array.seti binmap.array node_addr binmap.free;
   binmap.free <- node_addr
 
 let split_node binmap node_addr is_left bitmap =
