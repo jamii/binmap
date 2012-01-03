@@ -156,9 +156,13 @@ let rec set_loop binmap offset set_layer set_bit layer node_addr =
       set_loop binmap offset set_layer set_bit (layer-1) child_addr end;
   compact_node binmap node_addr is_left
 
-let set binmap i layer bit =
-  assert (i < binmap.length);
+let rec set binmap i layer bit =
+  assert ((Int.pow 2 layer) * i < binmap.length);
   assert (layer >= 0);
-  assert (layer <= binmap.layers);
-  if get binmap i <> bit
-  then set_loop binmap i layer bit binmap.layers 0
+  if layer <= binmap.layers
+  then
+    set_loop binmap i layer bit binmap.layers 0
+  else begin
+    set binmap (2*i)     (layer-1) bit;
+    set binmap (2*i + 1) (layer-1) bit
+  end
