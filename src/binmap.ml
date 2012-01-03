@@ -20,14 +20,15 @@ type node =
   | Bitmap of Bitmap.t
   | Pointer of int
 
-let max_layers = Bitmap.width (* (ab)using bitmaps as node addresses *)
+let max_layers = Bitmap.width - 1 (* (ab)using bitmaps as node addresses *)
 let max_length = max_int (* need ints to index bigarray *)
 
 let layers_needed length =
-  let bitmaps = (length / Bitmap.width) + 1 in
+  let pair_width = Bitmap.width * 2 in
+  let bitmaps = (length / pair_width) + (if length mod pair_width = 0 then 0 else 1) in
   let layers = int_of_float (ceil (log (float_of_int bitmaps) /. log 2.0)) in
-  assert ((Int.pow 2 layers) * Bitmap.width >= length);
-  assert ((Int.pow 2 (layers-1)) * Bitmap.width < length);
+  assert ((Int.pow 2 layers) * pair_width >= length);
+  assert ((layers = 0) or (Int.pow 2 (layers-1)) * pair_width < length);
   layers
 
 let create_array length =
